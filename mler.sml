@@ -310,3 +310,87 @@ and
   'a sexp =
     An_atom of 'a
    |A_slist of ('a slist);
+
+fun occurs_in_slist(a, Empty)
+    = 0
+  | occurs_in_slist(a, Scons(s,y))
+    = occurs_in_sexp(a,s) + occurs_in_slist(a,y)
+and
+  occurs_in_sexp(a, An_atom(b))
+    = if eq_fruit(b, a)
+      then 1
+      else 0
+  | occurs_in_sexp(a, A_slist(y))
+    = occurs_in_slist(a,y);
+occurs_in_sexp: (fruit * fruit sexp) -> int;
+
+occurs_in_slist(Fig, Scons(An_atom(Fig), Scons(An_atom(Fig), Empty)));
+occurs_in_sexp(Fig, A_slist(Scons(An_atom(Fig),Scons(An_atom(Peach),Empty))));
+
+fun subst_in_slist(n, a, Empty)
+    = Empty
+  | subst_in_slist(n, a, Scons(s, y))
+    = Scons(
+        subst_in_sexp(n, a, s),
+        subst_in_slist(n, a, y))
+and
+  subst_in_sexp(n, a, An_atom(b))
+    = if eq_fruit(b, a)
+      then An_atom(n)
+      else An_atom(b)
+  | subst_in_sexp(n, a, A_slist(y))
+    = A_slist(subst_in_slist(n, a, y));
+subst_in_slist: 
+  (fruit * fruit * fruit slist) -> fruit slist;
+subst_in_sexp: 
+  (fruit * fruit * fruit sexp) -> fruit sexp;
+
+subst_in_slist(Apple, Fig, Scons(An_atom(Fig),Scons(An_atom(Peach),Empty)));
+
+
+fun eq_fruit_in_atom(a, An_atom(s))
+  = eq_fruit(a, s)
+  | eq_fruit_in_atom(a_fruit, A_slist(y))
+  = false;
+eq_fruit_in_atom:
+  (fruit * fruit sexp) -> bool;
+
+fun
+  rem_from_slist(a, Empty)
+  = Empty
+  | rem_from_slist(a, Scons(s, y))
+  = if eq_fruit_in_atom(a, s)
+    then rem_from_slist(a, y)
+    else Scons(
+          rem_from_sexp(a, s),
+          rem_from_slist(a, y))
+and
+  rem_from_sexp(a, An_atom(b))
+  = An_atom(b)
+  | rem_from_sexp(a, A_slist(y))
+  = A_slist(rem_from_slist(a, y));
+
+rem_from_slist(Fig, Empty);
+rem_from_slist(Fig, Scons(An_atom(Fig), Empty));
+rem_from_slist(Apple, Scons(An_atom(Fig), Scons(An_atom(Apple), Empty)));
+rem_from_slist(Fig, Scons(An_atom(Fig), Scons(An_atom(Apple), Empty)));
+
+fun rem_from_slist(a, Empty)
+    = Empty
+  | rem_from_slist(a, Scons(An_atom(b),y))
+    = if eq_fruit(a, b)
+      then rem_from_slist(a, y)
+      else Scons(
+              An_atom(b),
+              rem_from_slist(a,y))
+  | rem_from_slist(a, Scons(A_slist(x), y))
+    = Scons(
+        A_slist(rem_from_slist(a,x)),
+                rem_from_slist(a, y));
+
+rem_from_slist(Fig, Empty);
+rem_from_slist(Fig, Scons(An_atom(Fig), Empty));
+rem_from_slist(Apple, Scons(An_atom(Fig), Scons(An_atom(Apple), Empty)));
+rem_from_slist(Fig, Scons(An_atom(Fig), Scons(An_atom(Apple), Empty)));
+
+(* Chapter 7 *)
